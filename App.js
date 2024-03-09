@@ -7,7 +7,7 @@ import Login from './Login'; // Adjusted import
 import Map from './Map'; // Adjusted import
 import Plus from './Plus'; // Adjusted import
 import Profile from './Profile'; // Adjusted import
-
+import {Ionicons} from '@expo/vector-icons';
 const Tab = createBottomTabNavigator();
 
 export default function App() {
@@ -26,9 +26,29 @@ export default function App() {
         <Login setIsLoggedIn={setIsLoggedIn} />
       ) : (
         <Tab.Navigator>
-          <Tab.Screen name="Map" component={Map} />
-          <Tab.Screen name="Plus" component={Plus} />
-          <Tab.Screen name="Profile" component={Profile} />
+          <Tab.Screen name="Map" component={Map} 
+          options={{
+            tabBarIcon:({color, size})=>(
+              <Ionicons  name="map-outline" size={30} color ="#000000"/>
+            )
+          }}
+          />
+
+          <Tab.Screen name="Plus" component={Plus} 
+          options={{ tabBarIcon:({color, size}) =>(
+            <Ionicons name="add-circle" size = {30} color = "#000000" />
+          )
+        }}
+          />
+
+          <Tab.Screen name="Profile" component={Profile} 
+           options={{
+            tabBarIcon:({color, size}) =>(
+              <Ionicons name="person-circle-outline" size = {30} color = "#000000" />
+            )
+          }}
+          />
+          
         </Tab.Navigator>
       )}
     </NavigationContainer>
