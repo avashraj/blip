@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, NativeAppEventEmitter } from 'react-native';
 import MapViewComponent from '../components/MapViewComponent';
 import BottomBar from '../components/BottomBar'; // Assuming you've created this component
+import PlusButton from '../components/PlusButton';
+import ProfileButton  from '../components/ProfileButton';
+
 
 const HomeScreen = () => {
   return (
@@ -10,13 +13,11 @@ const HomeScreen = () => {
       <View style={styles.mapContainer}>
         <MapViewComponent />
       </View>
-      {/* BottomBar is placed outside the mapContainer to be independently visible */}
-      <View style={styles.bottomBarContainer}>
-        <BottomBar />
-      </View>
+      <MyTabs />
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
