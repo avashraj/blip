@@ -1,66 +1,37 @@
-import * as React from 'react';
-import { Text} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from './screens/HomeScreen';
-import { View, StyleSheet, NativeAppEventEmitter } from 'react-native';
-import MapViewComponent from './components/MapViewComponent';
-import { Mapview } from 'expo';
-
-
-
-function Map(){
-  return(
-    <View style = {{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      {/* <HomeScreen/> */}
-      
-      <View style={styles.mapContainer}>
-        <MapViewComponent/>
-      </View>
-    </View>
-  );
-}
-
-
-
-function Plus(){
-  return(
-    <View style = {{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-  
-
-    </View>
-  );
-}
-function Profile(){
-  return(
-    <View style = {{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text> Profile</Text>
-    </View>
-  );
-}
+import { onAuthStateChanged } from 'firebase/auth';
+import { appAuth } from './firebaseConfig'; // Adjust the import path as necessary
+import Login from './Login'; // Adjusted import
+import Map from './Map'; // Adjusted import
+import Plus from './Plus'; // Adjusted import
+import Profile from './Profile'; // Adjusted import
 
 const Tab = createBottomTabNavigator();
 
-
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  mapContainer: {
-    flex: 7, // Adjust this flex value to allocate less space to the map and more to the bottom bar
-  },
-}
-);
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(appAuth, user => {
+      setIsLoggedIn(!!user);
+    });
+    return unsubscribe; // for cleanup
+  }, []);
+
   return (
-<NavigationContainer>
-  <Tab.Navigator>
-  <Tab.Screen name = 'Map' component = {Map} />
-    <Tab.Screen name = 'Plus' component = {Plus} />
-    <Tab.Screen name = 'Profile' component = {Profile} />
-    
-  </Tab.Navigator>
-</NavigationContainer>
+    <NavigationContainer>
+      {!isLoggedIn ? (
+        <Login setIsLoggedIn={setIsLoggedIn} />
+      ) : (
+        <Tab.Navigator>
+          <Tab.Screen name="Map" component={Map} />
+          <Tab.Screen name="Plus" component={Plus} />
+          <Tab.Screen name="Profile" component={Profile} />
+        </Tab.Navigator>
+      )}
+    </NavigationContainer>
   );
 }
+
