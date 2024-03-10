@@ -7,15 +7,20 @@ import Login from './Login'; // Adjusted import
 import Map from './Map'; // Adjusted import
 import Plus from './Plus'; // Adjusted import
 import Profile from './Profile'; // Adjusted import
-import {Ionicons} from '@expo/vector-icons';
+import LocationPermissions from './LocationPermissions'; // Import LocationPermissions component
+
 const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLocationPermission, setShowLocationPermission] = useState(false);
+  const [location, setLocation] = useState(null);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(appAuth, user => {
       setIsLoggedIn(!!user);
+      setShowLocationPermission(!!user); // Set showLocationPermission to true when user is logged in
     });
     return unsubscribe; // for cleanup
   }, []);
@@ -25,33 +30,18 @@ export default function App() {
       {!isLoggedIn ? (
         <Login setIsLoggedIn={setIsLoggedIn} />
       ) : (
-        <Tab.Navigator>
-          <Tab.Screen name="Map" component={Map} 
-          options={{
-            tabBarIcon:({color, size})=>(
-              <Ionicons  name="map-outline" size={30} color ="#000000"/>
-            )
-          }}
-          />
-
-          <Tab.Screen name="Plus" component={Plus} 
-          options={{ tabBarIcon:({color, size}) =>(
-            <Ionicons name="add-circle" size = {30} color = "#000000" />
-          )
-        }}
-          />
-
-          <Tab.Screen name="Profile" component={Profile} 
-           options={{
-            tabBarIcon:({color, size}) =>(
-              <Ionicons name="person-circle-outline" size = {30} color = "#000000" />
-            )
-          }}
-          />
-          
-        </Tab.Navigator>
+        <>
+          {!location ? ( // Render LocationPermissions component if showLocationPermission is true
+            <LocationPermissions location={location} setLocation={setLocation} />
+          ) : (
+            <Tab.Navigator>
+              <Tab.Screen name="Map" component={Map} />
+              <Tab.Screen name="Plus" component={Plus} />
+              <Tab.Screen name="Profile" component={Profile} />
+            </Tab.Navigator>
+          )}
+        </>
       )}
     </NavigationContainer>
   );
 }
-
