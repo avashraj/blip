@@ -82,25 +82,24 @@ export default function Plus() {
       Alert.alert('No image selected', 'Please select an image first.');
       return;
     }
-
+  
     console.log('Fetching current location...');
     const coords = await getCurrentLocation();
     if (!coords) {
       Alert.alert('Location error', 'Could not fetch location.');
       return;
     }
-
+  
     console.log('Uploading image to storage...');
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const fileName = originalFileName || `image_${new Date().getTime()}.jpg`;
     const storageReference = ref(appStorage, `images/${fileName}`);
-
+  
     try {
       await uploadBytes(storageReference, blob);
       const downloadURL = await getDownloadURL(storageReference);
       
-
       await addDoc(collection(firestore, "locations"), {
         name,
         description,
@@ -108,13 +107,20 @@ export default function Plus() {
         latitude: coords.latitude,
         longitude: coords.longitude,
       });
-
+  
       Alert.alert('Upload successful!', 'Your location and image have been saved.');
+  
+      // Resetting the form and image preview to their initial states
+      setName('');
+      setDescription('');
+      setImageUri('');
+      setOriginalFileName('');
     } catch (error) {
       console.error('Error uploading data:', error);
       Alert.alert('Upload failed', 'There was a problem uploading your data.');
     }
   };
+  
 
   return (
     <View style={styles.container}>

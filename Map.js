@@ -1,29 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image } from 'react-native'; // Ensure Image and Text are imported
 import MapView, { Marker, Callout } from 'react-native-maps';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { firestore } from './firebaseConfig';
+
 
 const styles = StyleSheet.create({
   mapContainer: {
     ...StyleSheet.absoluteFillObject,
-  },
-  noDataText: {
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  calloutView: {
-    flexDirection: 'column',
-    alignSelf: 'flex-start',
-    maxWidth: 150, // Adjust the size of the callout
-  },
-  calloutImage: {
-    width: 140, // Adjust the size of the image
-    height: 100, // Adjust the size of the image
-    resizeMode: 'cover',
-  },
-  calloutText: {
-    paddingTop: 5,
   },
 });
 
@@ -31,22 +15,23 @@ export default function Map() {
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(firestore, "locations"));
-        const locationsArray = [];
-        querySnapshot.forEach((doc) => {
-          let location = doc.data();
-          location.id = doc.id;
-          locationsArray.push(location);
-        });
-        setLocations(locationsArray);
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-      }
-    };
+    const unsubscribe = onSnapshot(collection(firestore, "locations"), (querySnapshot) => {
+      const locationsArray = [];
+      querySnapshot.forEach((doc) => {
+        let location = {
+          id: doc.id,
+          ...doc.data(),
+        };
+        // Ensure latitude and longitude are numbers
+        location.latitude = Number(location.latitude);
+        location.longitude = Number(location.longitude);
+        locationsArray.push(location);
+      });
+      setLocations(locationsArray);
+    });
 
-    fetchLocations();
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -59,13 +44,14 @@ export default function Map() {
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            title={location.name} // This title shows up in the default tooltip, might be redundant with a custom callout
+            title={location.name}
+            description={location.description}
           >
-            <Callout tooltip>
-              <View style={styles.calloutView}>
-                <Image source={{ uri: location.imageUrl }} style={styles.calloutImage} />
-                <Text style={styles.calloutText}>{location.name}</Text>
-                <Text style={styles.calloutText}>{location.description}</Text>
+            <Callout>
+              <View>
+                <Image source={{ uri: location.imageUrl }} style={{ width: 100, height: 100 }} />
+                <Text>{location.name}</Text>
+                <Text>{location.description}</Text>
               </View>
             </Callout>
           </Marker>

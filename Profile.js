@@ -1,8 +1,7 @@
-// Profile.js
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import { signOut } from 'firebase/auth';
-import { appAuth } from './firebaseConfig'; // Ensure this path matches the location of your Firebase configuration
+import { appAuth } from './firebaseConfig';
 
 const styles = StyleSheet.create({
   container: {
@@ -17,6 +16,8 @@ const styles = StyleSheet.create({
 });
 
 export default function Profile() {
+  const user = appAuth.currentUser;
+
   const handleLogout = async () => {
     try {
       await signOut(appAuth); // Sign out the user
@@ -24,12 +25,17 @@ export default function Profile() {
       // Navigation back to the login screen is handled by your authentication state listener in App.js
     } catch (error) {
       console.error('Error signing out: ', error);
+      Alert.alert('Error', 'Failed to sign out.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text>Profile View Placeholder</Text>
+      {user ? (
+        <Text>Email: {user.email}</Text>
+      ) : (
+        <Text>User not signed in</Text>
+      )}
       <Button
         title="Logout"
         onPress={handleLogout}
